@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de administrador — Redi</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root {
+      --ink: #0b1e3d;
+      --cream: #fff8ec;
+      --coral: #f97362;
+      --water: #0ea5c4;
+      --border: #e4d9c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--ink);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+    .panel {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+    h1 { font-size: 1.3rem; margin: 0 0 6px; }
+    .subtitle { color: #5a6a80; font-size: 0.85rem; margin: 0 0 20px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin: 14px 0 4px; }
+    input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--coral); color: #fff; margin-top: 16px; }
+    .btn-save { background: var(--water); color: #fff; }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .field-row > div:first-child { flex: 1; }
+    .field-row input { width: 90px; }
+    .status { font-size: 0.8rem; margin-top: 4px; min-height: 1em; }
+    .status.ok { color: #1a8a52; }
+    .status.error { color: var(--coral); }
+    .stat-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+    .hidden { display: none !important; }
+    .warning {
+      background: #fff3e0;
+      border: 1px solid #f0c987;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: #7a5a10;
+      margin-top: 20px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <!-- Pantalla de contraseña -->
+    <div id="gate">
+      <h1>Panel de administrador</h1>
+      <p class="subtitle">Acceso restringido — Redi, libro de pesca AR</p>
+      <label for="password-input">Contraseña</label>
+      <input type="password" id="password-input" placeholder="••••••" />
+      <button id="btn-enter" class="btn-primary">Entrar</button>
+      <p id="gate-status" class="status error"></p>
+    </div>
+
+    <!-- Panel real (oculto hasta ingresar la contraseña) -->
+    <div id="dashboard" class="hidden">
+      <h1>Panel de administrador</h1>
+      <p class="subtitle">Métricas básicas y configuración del juego</p>
+
+      <div class="stat-box">
+        🎣 Jugadores que arrancaron el juego hasta ahora:
+        <strong id="players-count">cargando...</strong>
+      </div>
+
+      <div id="fields-container"></div>
+
+      <button id="btn-save-all" class="btn-save">Guardar todos los cambios</button>
+      <p id="save-status" class="status"></p>
+
+      <p class="warning">
+        ⚠️ Estos valores se guardan en un servicio externo gratuito
+        (countapi) y afectan a TODOS los que abran el libro a partir de
+        ahora. Los cambios pueden tardar unos segundos en aplicarse.
+        Esta contraseña es una protección simple, no es seguridad real
+        — no guardes acá nada sensible.
+      </p>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

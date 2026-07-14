@@ -1,0 +1,637 @@
+/* =========================================================================
+   main.css
+   -------------------------------------------------------------------------
+   Paleta:
+     Noche  -> #0B1E3D (profundo) / #153357 (medio)
+     Día    -> #0EA5C4 (agua) / #CFF3FF (cielo) / #FDE68A (sol)
+     Acento -> #C68B59 (soga/red, "Redi") / #F97362 (coral cálido)
+     Crema  -> #FFF8EC (tarjetas de UI, para que el texto respire)
+   Tipografía:
+     Baloo 2   -> títulos, redondeada y amigable para libro infantil
+     Nunito    -> texto de cuerpo, muy legible en pantallas chicas
+   ========================================================================= */
+
+:root {
+  --night-deep: #0b1e3d;
+  --night-mid: #153357;
+  --day-water: #0ea5c4;
+  --day-sky: #cff3ff;
+  --sun: #fde68a;
+  --net-brown: #c68b59;
+  --coral: #f97362;
+  --cream: #fff8ec;
+  --ink: #0b1e3d;
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --shadow-soft: 0 12px 32px rgba(11, 30, 61, 0.35);
+  /* Radio único del visor circular: TODO lo que dibuja el círculo (el
+     marco, el desenfoque de los bordes y el recorte de la escena AR)
+     usa esta misma variable, para que nunca queden desalineados entre
+     sí (esa desalineación era la causa de que "el visor no funcionara"). */
+  --viewer-radius: min(40vw, 40vh);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: "Nunito", sans-serif;
+  color: var(--ink);
+}
+
+h1,
+h2 {
+  font-family: "Baloo 2", "Nunito", sans-serif;
+  margin: 0 0 12px;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+
+#app-root,
+#ar-mount,
+#scene-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#ar-mount {
+  z-index: 0;
+  background: #000; /* placeholder mientras carga la cámara, nunca tapa el video una vez activo */
+}
+
+#ar-mount a-scene {
+  width: 100%;
+  height: 100%;
+}
+
+/* #app-root es solo un contenedor organizador: por defecto NO capta
+   toques, para no bloquear los peces que están debajo suyo (en
+   #scene-container). Cada pantalla/tarjeta interactiva se vuelve a
+   habilitar explícitamente con pointer-events: auto.
+   IMPORTANTE: necesita un z-index explícito mayor al de #scene-container
+   (5) — si no, aunque venga después en el HTML, #scene-container lo
+   tapa igual, porque cualquier z-index explícito positivo siempre gana
+   contra un elemento sin z-index (auto), sin importar el orden del DOM. */
+#app-root {
+  z-index: 30;
+  pointer-events: none;
+}
+
+#app-root > .screen,
+.redi-modal,
+.quiz-modal,
+.gameover-modal {
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------------- */
+/* Pantallas genéricas                                                   */
+/* -------------------------------------------------------------------- */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 20%, var(--night-mid), var(--night-deep) 70%);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------------- */
+/* Bienvenida                                                            */
+/* -------------------------------------------------------------------- */
+
+.welcome-card,
+.loading-card {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.redi-portrait {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.welcome-card p {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #33455f;
+}
+
+.btn-primary {
+  margin-top: 18px;
+  background: linear-gradient(135deg, var(--coral), #f2554a);
+  color: var(--cream);
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1.15rem;
+  padding: 14px 30px;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(249, 115, 98, 0.45);
+  transition: transform 0.15s ease;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-secondary {
+  margin-top: 18px;
+  background: transparent;
+  color: var(--ink);
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1.05rem;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: 2px solid #b9c3d4;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-secondary:active {
+  transform: scale(0.96);
+  background: #eef1f5;
+}
+
+.btn-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* -------------------------------------------------------------------- */
+/* Carga                                                                 */
+/* -------------------------------------------------------------------- */
+
+.loading-bubbles {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.loading-bubbles span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--day-water);
+  animation: bubble-pulse 1.2s ease-in-out infinite;
+}
+
+.loading-bubbles span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.loading-bubbles span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes bubble-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* Visor: un simple círculo, sin filtros ni capas extra                  */
+/* -------------------------------------------------------------------- */
+
+#viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#viewer-frame {
+  position: relative;
+  width: calc(var(--viewer-radius) * 2);
+  height: calc(var(--viewer-radius) * 2);
+  border-radius: 50%;
+  border: 4px solid var(--coral);
+}
+
+.viewer-status {
+  position: absolute;
+  bottom: -52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 80vw;
+  text-align: center;
+  color: var(--cream);
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1rem;
+  background: rgba(11, 30, 61, 0.65);
+  padding: 8px 18px;
+  border-radius: 999px;
+}
+
+/* -------------------------------------------------------------------- */
+/* HUD (sonido, puntaje, temporizador)                                   */
+/* -------------------------------------------------------------------- */
+
+#hud {
+  position: fixed;
+  top: env(safe-area-inset-top, 16px);
+  left: 0;
+  right: 0;
+  z-index: 25;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 14px 16px;
+  pointer-events: none;
+}
+
+#hud > * {
+  pointer-events: auto;
+}
+
+.hud-button {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--cream);
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-soft);
+  flex-shrink: 0;
+}
+
+#hud-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.hud-pill {
+  background: var(--cream);
+  font-family: "Baloo 2", sans-serif;
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-soft);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------- */
+/* Toast                                                                 */
+/* -------------------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 40;
+  background: var(--night-deep);
+  color: var(--cream);
+  font-family: "Baloo 2", sans-serif;
+  padding: 12px 22px;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* -------------------------------------------------------------------- */
+/* Crédito fijo (siempre visible, chico, abajo de todo)                  */
+/* -------------------------------------------------------------------- */
+
+#credit-footer {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255, 248, 236, 0.75);
+  background: rgba(11, 30, 61, 0.45);
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------------- */
+/* Escena: círculo transparente donde flotan peces y burbujas            */
+/* -------------------------------------------------------------------- */
+
+#scene-container {
+  z-index: 5;
+  overflow: hidden;
+  clip-path: circle(var(--viewer-radius) at 50% 50%);
+  -webkit-clip-path: circle(var(--viewer-radius) at 50% 50%);
+}
+
+/* Burbujas: dos cuadros (bubija_1/bubija_2) que alternan mientras suben */
+.bubble-sprite {
+  position: absolute;
+  bottom: -30px;
+  pointer-events: none;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.bubble-sprite.bubble-rising {
+  animation-name: bubble-rise;
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-115vh) translateX(15px);
+    opacity: 0;
+  }
+}
+
+.bubble-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.bubble-frame-b {
+  opacity: 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* Peces (sprites)                                                       */
+/* -------------------------------------------------------------------- */
+
+.fish-sprite {
+  position: absolute;
+  width: 14%;
+  min-width: 64px;
+  max-width: 120px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.fish-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  transition: opacity 0.15s ease-in-out;
+  animation: blink-eye 5s ease-in-out infinite;
+}
+
+.fish-frame-b {
+  opacity: 0;
+}
+
+@keyframes blink-eye {
+  0%,
+  92%,
+  100% {
+    filter: brightness(1);
+  }
+  95% {
+    filter: brightness(0.85);
+  }
+}
+
+.fish-caught {
+  animation: caught-pop 0.4s ease forwards;
+}
+
+@keyframes caught-pop {
+  to {
+    transform: scale(0.2) translateY(-40px);
+    opacity: 0;
+  }
+}
+
+/* Los peces no atrapables (páginas 1-4) no desaparecen al tocarlos,
+   pero sí dan un salto rápido de huida antes de seguir nadando. */
+.fish-startle {
+  animation: fish-startle-dash 0.35s ease;
+}
+
+@keyframes fish-startle-dash {
+  0% {
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(var(--fish-scale, 1)) translateX(35px) scaleY(0.85);
+    filter: brightness(1.15);
+  }
+  100% {
+    transform: scale(var(--fish-scale, 1));
+    filter: brightness(1);
+  }
+}
+
+.floating-points {
+  position: absolute;
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1.4rem;
+  color: var(--sun);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  animation: float-up 1s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* Tarjetas genéricas de Redi (intro de tiempo, timeout, SI/NO, quiz)     */
+/* -------------------------------------------------------------------- */
+
+.redi-modal,
+.quiz-modal,
+.gameover-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 30, 61, 0.72);
+  padding: 20px;
+}
+
+.redi-card,
+.quiz-card,
+.gameover-card {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.redi-card h2 {
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid #e4d9c4;
+  margin: 18px 0 14px;
+}
+
+.closing-message {
+  font-size: 0.95rem;
+  color: #33455f;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.redi-card p {
+  color: #33455f;
+  line-height: 1.5;
+  font-size: 1.05rem;
+}
+
+.redi-card .redi-portrait {
+  width: 160px;
+  height: 160px;
+}
+
+.yesno-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* -------------------------------------------------------------------- */
+/* Quiz (opciones reutilizadas dentro de .redi-card)                     */
+/* -------------------------------------------------------------------- */
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quiz-option {
+  background: var(--day-sky);
+  color: var(--ink);
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.quiz-option:active {
+  transform: scale(0.97);
+}
+
+.quiz-feedback {
+  margin-top: 14px;
+  font-family: "Baloo 2", sans-serif;
+}
+
+.feedback-correct {
+  color: #1a8a52;
+}
+
+.feedback-incorrect {
+  color: var(--coral);
+}
+
+/* -------------------------------------------------------------------- */
+/* Confetis                                                              */
+/* -------------------------------------------------------------------- */
+
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation-name: confetti-fall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(540deg);
+    opacity: 0.9;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* Accesibilidad: respeta "reducir movimiento" del sistema                */
+/* -------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
