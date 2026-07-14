@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Redi - ¿Dónde están los peces?</title>
+  <meta name="description" content="Libro infantil interactivo de realidad aumentada: acompañá a Redi a pescar." />
+
+  <!-- Tipografías gratuitas (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="main.css" />
+
+  <!-- A-Frame + MindAR (Image Tracking). Versiones fijas para estabilidad;
+       ambas son librerías 100% gratuitas servidas desde jsDelivr, sin
+       necesidad de cuenta ni API key. -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+<body>
+  <!-- Contenedor donde ar-manager.js inyecta dinámicamente la <a-scene> -->
+  <div id="ar-mount"></div>
+
+  <!-- Overlay 2D donde scene-manager.js dibuja fondo/basura/peces/algas -->
+  <div id="scene-container"></div>
+
+  <!-- Todas las pantallas de UI (bienvenida, carga, visor, HUD, toasts) -->
+  <div id="app-root"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
