@@ -62,7 +62,7 @@ const SCENES = [
     reasonQuestion: "¿Por qué creés que ahora encontraremos peces?",
     reasonOptions: [
       { text: "Porque ahora es de día", correct: false },
-      { text: "Porque Pedro lanzó mejor", correct: false },
+      { text: "Porque recuperamos la fuerza", correct: false }, // <-- Opción actualizada aquí
       { text: "Porque Jesús lo dijo", correct: true },
     ],
     incorrectMessage: "No creo que esa sea una buena razón para tirar las redes de nuevo.",
