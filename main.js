@@ -95,11 +95,11 @@ class RediApp {
     refreshBtn.id = "redi-refresh-btn";
     refreshBtn.innerHTML = "🔄 Reiniciar Escaneo";
     
-    // Estilos directos para asegurar consistencia visual en móviles
+    // Cambiado al lado izquierdo (debajo del botón de audio) para no tapar los marcadores de juego
     Object.assign(refreshBtn.style, {
       position: "fixed",
-      top: "12px",
-      right: "12px",
+      top: "84px",
+      left: "12px",
       zIndex: "9999",
       padding: "10px 14px",
       backgroundColor: "rgba(0, 0, 0, 0.6)",
@@ -131,11 +131,6 @@ class RediApp {
     this.ui.setViewerStatus("Buscando una página...");
   }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  const app = new RediApp();
-  app.init();
-});
 
 window.addEventListener("DOMContentLoaded", () => {
   const app = new RediApp();
