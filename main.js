@@ -71,13 +71,13 @@ class RediApp {
 
     try {
       // Dejamos que sea MindAR el único que pide el permiso de cámara.
-      // Pedirlo nosotros primero "a mano" y liberarlo enseguida generaba
-      // conflictos en varios Android (la cámara quedaba colgada sin
-      // avisar ningún error).
       await this.arManager.start();
 
       this.ui.hideLoading();
       this.ui.showViewer();
+      
+      // Creamos e inyectamos el botón de refresh para evitar la frustración de congelamiento
+      this._injectRefreshButton();
     } catch (err) {
       this.ui.hideLoading();
       this.ui.showToast(
@@ -85,6 +85,41 @@ class RediApp {
         5000
       );
     }
+  }
+
+  /** Inyecta un botón flotante estético para reiniciar el escaneo en caliente */
+  _injectRefreshButton() {
+    if (document.getElementById("redi-refresh-btn")) return;
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.id = "redi-refresh-btn";
+    refreshBtn.innerHTML = "🔄 Reiniciar Escaneo";
+    
+    // Estilos directos para asegurar consistencia visual en móviles
+    Object.assign(refreshBtn.style, {
+      position: "fixed",
+      top: "12px",
+      right: "12px",
+      zIndex: "9999",
+      padding: "10px 14px",
+      backgroundColor: "rgba(0, 0, 0, 0.6)",
+      color: "#ffffff",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
+      borderRadius: "20px",
+      fontSize: "13px",
+      fontWeight: "bold",
+      fontFamily: "sans-serif",
+      cursor: "pointer",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+      backdropFilter: "blur(4px)",
+      webkitBackdropFilter: "blur(4px)"
+    });
+
+    refreshBtn.addEventListener("click", () => {
+      window.location.reload();
+    });
+
+    document.body.appendChild(refreshBtn);
   }
 
   _handleTargetFound(sceneId) {
@@ -96,6 +131,11 @@ class RediApp {
     this.ui.setViewerStatus("Buscando una página...");
   }
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  const app = new RediApp();
+  app.init();
+});
 
 window.addEventListener("DOMContentLoaded", () => {
   const app = new RediApp();
