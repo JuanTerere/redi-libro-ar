@@ -54,12 +54,6 @@ class AttemptManager {
 
     this._spawnBubbles();
     this._spawnNextFish(0); // el primero entra enseguida
-
-    this.countdownInterval = setInterval(() => {
-      this.timeLeft -= 1;
-      this.ui.updateTimer(this.timeLeft);
-      if (this.timeLeft <= 0) this._endAttempt();
-    }, 1000);
   }
 
   /**
@@ -73,6 +67,9 @@ class AttemptManager {
     this.nextFishTimeout = setTimeout(() => {
       if (!this.running) return;
 
+      // El pez dice "NO" inmediatamente al aparecer/entrar a la pantalla
+      this.audio.play("no_pesca");
+
       this.currentFish = new FishSprite({
         container: this.container,
         frameA: "pez1_a.svg",
@@ -81,7 +78,10 @@ class AttemptManager {
         catchable: false,
         speedFactor: 0.85 + Math.random() * 0.5,
         scale: 0.9 + Math.random() * 0.3,
-        onEscape: () => this.audio.play("escape"),
+        onEscape: () => {
+          // El pez vuelve a decir "NO" si el usuario intenta tocarlo y se escapa
+          this.audio.play("no_pesca");
+        },
         onExit: () => {
           if (!this.running) return;
           // Pequeña pausa antes de que entre el próximo, para que no
@@ -90,6 +90,15 @@ class AttemptManager {
         },
       });
     }, delayMs);
+
+    // Mantenemos el control del temporizador de forma segura aquí
+    if (!this.countdownInterval && this.running) {
+      this.countdownInterval = setInterval(() => {
+        this.timeLeft -= 1;
+        this.ui.updateTimer(this.timeLeft);
+        if (this.timeLeft <= 0) this._endAttempt();
+      }, 1000);
+    }
   }
 
   /** Burbujas continuas (bubija_1/bubija_2), bastante seguido para dar vida. */
@@ -126,6 +135,7 @@ class AttemptManager {
   stop() {
     this.running = false;
     clearInterval(this.countdownInterval);
+    this.countdownInterval = null;
     clearInterval(this.bubbleInterval);
     clearTimeout(this.nextFishTimeout);
     this.ui.setTimerVisible(false);
