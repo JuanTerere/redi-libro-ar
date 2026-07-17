@@ -40,6 +40,9 @@ class SceneManager {
     this._teardownCurrentScene();
     this.currentSceneId = sceneId;
 
+    // Activa el sonido de fondo del agua automáticamente para cualquier escena activa (Attempt o Finale)
+    this.audio.startLoop("agua");
+
     if (config.type === "attempt") {
       this.attemptManager.start(config, this.sceneContainer);
     } else if (config.type === "finale") {
@@ -51,6 +54,10 @@ class SceneManager {
   _teardownCurrentScene() {
     this.attemptManager.stop();
     this.finaleManager.stop();
+    
+    // Detiene el sonido del agua cuando se pierde el marcador o se limpia la escena
+    this.audio.stopLoop("agua");
+
     this.sceneContainer.innerHTML = "";
     this.currentSceneId = null;
     this.ui.setScoreVisible(false);
