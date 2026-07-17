@@ -26,6 +26,7 @@ class AudioManager {
       agua: "agua.mp3", // Sonido ambiente de fondo (bucle continuo bajo el agua)
       burbujas: "burbujas.mp3", // Se activa al tocar una burbuja
       captura: "auch.mp3", // Se activa cuando atrapan un pez (sonido de ¡auch!)
+      no_pesca: "sonido-no.mp3", // <-- Agregamos el sonido del pez que no se puede pescar
       correcto: "correcto.mp3",
       incorrecto: "incorrecto.mp3",
       escape: "escape.mp3",
